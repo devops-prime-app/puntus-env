@@ -1,0 +1,19 @@
+replicaCount: 2
+image:
+  repository: nginx
+  tag: "1.25"
+service:
+  type: ClusterIP
+  port: 80
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 9999         # DELIBERATE: wrong port, nginx listens on 80 not 9999
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 15

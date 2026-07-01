@@ -1,0 +1,104 @@
+name: Deploy Demo Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'demo'
+        type: choice
+        options:
+          - demo
+          - staging
+      destroy_existing:
+        description: 'Destroy existing infrastructure before deploy?'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  CLUSTER_NAME: demo-gke-cluster
+  TF_VERSION: 1.7.0
+
+jobs:
+  terraform:
+    name: 'Terraform — Provision GKE'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      cluster_name: ${{ steps.tf.outputs.cluster_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var="project_id=${{ env.PROJECT_ID }}" \
+            -var="region=${{ env.REGION }}" \
+            -var="cluster_name=${{ env.CLUSTER_NAME }}" \
+            -var="environment=${{ inputs.environment }}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        id: tf
+        run: |
+          terraform apply -auto-approve tfplan
+          echo "cluster_name=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
+
+  deploy-helm:
+    name: 'Helm — Deploy 10 Apps'
+    needs: terraform
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SA }}
+
+      - id: gke-credentials
+        name: Get GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Deploy Helm Charts
+        run: |
+          chmod +x deploy-helm.sh
+          ./deploy-helm.sh
+
+      - name: Verify Setup
+        run: |
+          chmod +x verify-setup.sh
+          ./verify-setup.sh

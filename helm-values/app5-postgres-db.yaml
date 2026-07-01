@@ -1,0 +1,15 @@
+primary:
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "non-existent-fast-ssd"  # DELIBERATE: invalid storage class
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+auth:
+  enablePostgresUser: true
+  postgresPassword: "demo-password-123"

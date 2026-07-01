@@ -1,0 +1,19 @@
+# App 10: Message Queue — Missing critical env vars + wrong service port
+replicaCount: 1
+image:
+  repository: rabbitmq
+  tag: "3.12-management"
+service:
+  type: ClusterIP
+  port: 15672  # Management UI port instead of 5672 (AMQP) — DELIBERATE: AMQP clients fail
+env:
+  - name: RABBITMQ_DEFAULT_USER
+    value: "admin"
+  - name: RABBITMQ_DEFAULT_PASS
+    value: ""
+    # DELIBERATE: Missing NODENAME env var — RabbitMQ refuses to start without it in some configs
+readinessProbe:
+  tcpSocket:
+    port: 5672             # Correct AMQP port, but service exposes 15672
+  initialDelaySeconds: 60
+  periodSeconds: 10

@@ -1,0 +1,29 @@
+# App 9: Task Scheduler — Readiness probe points to non-existent endpoint
+replicaCount: 1
+image:
+  repository: alpine
+  tag: "3.19"
+command:
+  - /bin/sh
+  - -c
+  - |
+    while true; do
+      echo "Scheduler heartbeat at $(date)"
+      sleep 60
+    done
+readinessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "test -f /tmp/scheduler-ready"  # DELIBERATE: file never created, never ready
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  failureThreshold: 999      # DELIBERATE: extreme threshold, hides the issue in k8s events
+livenessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "pgrep -f 'while true' || exit 1"
+  initialDelaySeconds: 30

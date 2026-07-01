@@ -1,0 +1,21 @@
+replicaCount: 1
+image:
+  repository: prom/prometheus
+  tag: "v2.50.0"
+args:
+  - "--config.file=/etc/prometheus/prometheus.yml"
+  - "--storage.tsdb.path=/prometheus"
+  - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+  - "--web.console.templates=/usr/share/prometheus/consoles"
+livenessProbe:
+  httpGet:
+    path: /-/healthy
+    port: 9090
+  initialDelaySeconds: 1      # DELIBERATE: too short — Prometheus startup takes 10-30s
+  periodSeconds: 3            # DELIBERATE: too aggressive
+  failureThreshold: 1         # DELIBERATE: kills on first failure
+readinessProbe:
+  httpGet:
+    path: /-/ready
+    port: 9090
+  initialDelaySeconds: 1      # DELIBERATE: too short

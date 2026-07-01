@@ -1,0 +1,12 @@
+# App 8: Log Aggregator — CrashLoopBackOff (invalid resource config)
+replicaCount: 1
+image:
+  repository: fluent/fluent-bit
+  tag: "3.0"
+resources:
+  requests:
+    memory: "1024Gi"          # DELIBERATE: impossibly large memory request — unschedulable
+    cpu: "100m"
+  limits:
+    memory: "2048Gi"          # DELIBERATE: impossibly large
+    cpu: "500m"

@@ -1,0 +1,22 @@
+replicaCount: 1
+image:
+  repository: busybox
+  tag: "1.36"
+command:
+  - /bin/sh
+  - -c
+  - |
+    # DELIBERATE: References non-existent config file, crashes immediately
+    if [ ! -f /etc/config/missing-config.yaml ]; then
+      echo "FATAL: Config file not found at /etc/config/missing-config.yaml"
+      exit 1
+    fi
+    echo "Worker started"
+    sleep infinity
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "200m"
