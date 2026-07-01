@@ -9,6 +9,17 @@ resource "google_container_cluster" "gke" {
 
   deletion_protection = false
 
+  # Control the default pool's node config to avoid SSD quota issues
+  node_config {
+    machine_type = var.machine_type
+    disk_size_gb = 30
+    disk_type    = "pd-standard"
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+  }
+
   addons_config {
     http_load_balancing {
       disabled = false
@@ -49,7 +60,7 @@ resource "google_container_node_pool" "primary" {
 
   node_config {
     machine_type = var.machine_type
-    disk_size_gb = 50
+    disk_size_gb = 30
     disk_type    = "pd-standard"
 
     oauth_scopes = [
