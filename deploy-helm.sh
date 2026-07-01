@@ -28,7 +28,7 @@ CHARTS=(
   "app8-log-aggregator=oci://registry-1.docker.io/bitnamicharts/fluent-bit"
   "app9-task-scheduler=oci://registry-1.docker.io/bitnamicharts/nginx"
   "app10-message-queue=oci://registry-1.docker.io/bitnamicharts/rabbitmq"
-```
+)
 
 echo "============================================"
 echo "Deploying 10 Demo Apps with Deliberate Issues"
