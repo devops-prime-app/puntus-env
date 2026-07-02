@@ -1,0 +1,28 @@
+# ✅ HEALTHY — Python API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3-backend-api
+  namespace: demo-apps
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app3-backend-api
+  template:
+    metadata:
+      labels:
+        app: app3-backend-api
+    spec:
+      containers:
+      - name: api
+        image: python:3.12-alpine
+        command: ["python3", "-m", "http.server", "8080"]
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5

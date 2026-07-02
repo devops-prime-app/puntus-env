@@ -1,0 +1,19 @@
+# ❌ BROKEN — Image doesn't exist
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app7-broken-imagepull
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app7-broken-imagepull
+  template:
+    metadata:
+      labels:
+        app: app7-broken-imagepull
+    spec:
+      containers:
+      - name: app
+        image: myapp:9.9.9-fake-tag-does-not-exist

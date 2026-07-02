@@ -1,0 +1,20 @@
+# ❌ BROKEN — Exits immediately (CrashLoopBackOff)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app8-broken-crashloop
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app8-broken-crashloop
+  template:
+    metadata:
+      labels:
+        app: app8-broken-crashloop
+    spec:
+      containers:
+      - name: crashing
+        image: busybox:1.36
+        command: ["sh", "-c", "echo 'FATAL: Database connection refused on 10.0.0.99:5432'; exit 1"]

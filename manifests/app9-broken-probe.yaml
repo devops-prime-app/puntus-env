@@ -1,0 +1,27 @@
+# ❌ BROKEN — Pod runs but readiness probe fails (port mismatch)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app9-broken-probe
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app9-broken-probe
+  template:
+    metadata:
+      labels:
+        app: app9-broken-probe
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9999
+          initialDelaySeconds: 5
+          periodSeconds: 10

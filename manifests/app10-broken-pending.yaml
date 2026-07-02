@@ -1,0 +1,26 @@
+# ❌ BROKEN — References non-existent PVC (stuck Pending)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app10-broken-pending
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app10-broken-pending
+  template:
+    metadata:
+      labels:
+        app: app10-broken-pending
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pvc-that-does-not-exist-at-all

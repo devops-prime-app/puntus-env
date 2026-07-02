@@ -1,0 +1,26 @@
+# ✅ HEALTHY — Redis caching service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2-cache-service
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2-cache-service
+  template:
+    metadata:
+      labels:
+        app: app2-cache-service
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 5

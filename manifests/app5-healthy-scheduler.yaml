@@ -1,0 +1,20 @@
+# ✅ HEALTHY — Task scheduler
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app5-task-scheduler
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app5-task-scheduler
+  template:
+    metadata:
+      labels:
+        app: app5-task-scheduler
+    spec:
+      containers:
+      - name: scheduler
+        image: busybox:1.36
+        command: ["sh", "-c", "while true; do echo 'Scheduled task OK'; sleep 60; done"]

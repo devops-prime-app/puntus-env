@@ -1,0 +1,23 @@
+# ❌ BROKEN — Memory leak causes OOMKill
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app6-broken-oomkill
+  namespace: demo-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app6-broken-oomkill
+  template:
+    metadata:
+      labels:
+        app: app6-broken-oomkill
+    spec:
+      containers:
+      - name: memory-hog
+        image: python:3.12-alpine
+        command: ["python3", "-c", "d=[]\nwhile True:\n try:\n  d.append(bytearray(30*1024*1024))\n  print(f'Allocated: {len(d)*30}MB')\n except:\n  print('OOM - dying')\n"]
+        resources:
+          limits:
+            memory: "128Mi"
