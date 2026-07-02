@@ -1,7 +1,7 @@
-# ── GKE Cluster (regional, 3 zones, 1 node each = 3 total) ──
+# ── GKE Cluster (zonal, 1 zone, 1 node) ──
 resource "google_container_cluster" "gke" {
   name     = var.cluster_name
-  location = var.region
+  location = var.zone
   project  = var.project_id
 
   remove_default_node_pool = true
@@ -53,7 +53,7 @@ resource "google_container_cluster" "gke" {
 
 resource "google_container_node_pool" "primary" {
   name       = "${var.cluster_name}-node-pool"
-  location   = var.region
+  location   = var.zone
   cluster    = google_container_cluster.gke.name
   project    = var.project_id
   node_count = var.node_count
